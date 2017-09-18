@@ -11,10 +11,8 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System.Threading;
 using OpenQA.Selenium.Interactions;
-using System.Text;
-using System.Net.Mail;
-using System.Net;
 using System.IO;
+using System.Data.SqlServerCe;
 
 namespace RAT
 {
@@ -31,10 +29,31 @@ namespace RAT
         String settingspath = "C:/Rat/settings.config";
         IWebDriver driver;
         mailsender ms = new mailsender();
-        
+        private SqlCeCommand cmd;
+        private SqlCeConnection con;
+        private string c = "Persist Security Info = False; Data Source = 'SalesData.sdf';" +
+  "Password = 'myrod'; File Mode = 'shared read'; " +
+  "Max Database Size = 256; Max Buffer Size = 1024";
+
         public Home()
         {
-            
+
+            InitializeComponent();
+            if (!File.Exists("/SalesData.sdf/"))
+            {
+                string connString = "Data Source='SalesData.sdf'; LCID=1033;   Password='myrod'; Encrypt = TRUE;";
+                SqlCeEngine engine = new SqlCeEngine(connString);
+                engine.CreateDatabase();
+                string query = "create table User(Email Varchar(100), password Varchar(100))";
+
+                con = new SqlCeConnection(c);
+                con.Open();
+                SqlCeCommand cmd = new SqlCeCommand(query, con);
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
+
+
 
             if (File.Exists(recpath) == false)
                  File.Create(recpath).Close();
@@ -232,8 +251,11 @@ namespace RAT
         {
             try
             {
-                Ratsettings rs = new Ratsettings();
-                rs.Show();
+                // Ratsettings rs = new Ratsettings();
+                //rs.Show();
+
+                Settings s = new Settings();
+                    s.Show();
             }
 
             catch (Exception ex)
@@ -242,8 +264,9 @@ namespace RAT
             }
         }
 
-        
+        private void Home_Load(object sender, EventArgs e)
+        {
 
-
+        }
     }
 }
